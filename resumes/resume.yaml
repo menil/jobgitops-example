@@ -5,8 +5,10 @@ basics:
   phone: '+12065550192'
   url: https://github.com/mbirkenbaum
   summary: Senior Software Engineer with 8+ years of experience designing, building,
-    and deploying scalable backend services, microservices, and GitOps-driven automation
-    systems. Passionate about testing, developer toolchains, and clean code.
+    and deploying scalable backend services, event-driven microservices, and GitOps-driven
+    automation systems. Passionate about leveraging robust testing, efficient developer
+    toolchains, and clean code to build highly reliable and impactful global financial
+    platforms.
   location:
     city: Seattle
     region: WA
@@ -25,13 +27,13 @@ work:
     infrastructure pipelines.
   highlights:
   - Designed and implemented Python-based event-driven microservices processing 10M+
-    daily events
+    daily events, ensuring high availability and reliability for critical global operations.
   - Standardized containerized deployments utilizing Docker, Kubernetes, and GitOps
-    workflows
-  - Mentored 6 junior/mid-level engineers, establishing local code styling and testing
-    standards
+    workflows, enhancing system stability and efficiency for global service delivery.
+  - Mentored 6 junior/mid-level engineers, establishing local code styling and rigorous
+    testing standards crucial for maintaining secure and robust production systems.
   - Developed custom internal toolchains that reduced CI pipeline execution times
-    by 40%
+    by 40%, significantly accelerating feature delivery and improving developer productivity.
 - name: Hooli Inc.
   position: Software Engineer
   url: https://hooli.example.com
@@ -40,11 +42,12 @@ work:
   summary: Backend engineer focused on building RESTful APIs, developer tooling, and
     automated deployment integrations.
   highlights:
-  - Developed robust REST APIs in Python/Django and TypeScript/Node.js
+  - Developed robust REST APIs in Python/Django and TypeScript/Node.js, enabling secure
+    and reliable data exchange for critical platform functionalities.
   - Integrated third-party APIs and automated webhook processors for external developer
-    platforms
+    platforms, expanding service capabilities and enhancing user experience.
   - Implemented a suite of unit and integration tests raising coverage from 60% to
-    92%
+    92%, significantly improving code quality and system integrity.
 education:
 - institution: University of Washington
   url: https://uw.edu
@@ -72,9 +75,13 @@ skills:
   - Git
   - GitOps
   - PostgreSQL
+  - Event-Driven Architectures
+  - Microservices
+  - System Reliability
+  - Performance Optimization
+  - pytest
   - Jinja2
   - WeasyPrint
-  - pytest
 projects:
 - name: JobGitOps
   description: A GitOps-driven job application and tracking system utilizing GitHub
