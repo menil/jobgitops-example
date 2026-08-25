@@ -5,8 +5,9 @@ basics:
   phone: '+12065550192'
   url: https://github.com/mbirkenbaum
   summary: Senior Software Engineer with 8+ years of experience designing, building,
-    and deploying scalable backend services, microservices, and GitOps-driven automation
-    systems. Passionate about testing, developer toolchains, and clean code.
+    and deploying high-performance, scalable distributed systems and microservices.
+    Expertise in cloud-agnostic infrastructure orchestration, GitOps, and optimizing
+    system efficiency for large-scale operations.
   location:
     city: Seattle
     region: WA
@@ -21,30 +22,32 @@ work:
   url: https://initech.example.com
   startDate: '2021-03-01'
   endDate: '2026-07-01'
-  summary: Led architecture and development of high-throughput microservices and GitOps-driven
-    infrastructure pipelines.
+  summary: Led architecture and development of high-performance, distributed microservices
+    and GitOps-driven infrastructure pipelines, focusing on maximizing compute efficiency.
   highlights:
-  - Designed and implemented Python-based event-driven microservices processing 10M+
-    daily events
-  - Standardized containerized deployments utilizing Docker, Kubernetes, and GitOps
-    workflows
-  - Mentored 6 junior/mid-level engineers, establishing local code styling and testing
-    standards
-  - Developed custom internal toolchains that reduced CI pipeline execution times
-    by 40%
+  - Designed and implemented high-throughput, Python-based event-driven microservices,
+    processing 10M+ daily events in a distributed system.
+  - Standardized containerized deployments utilizing Docker and Kubernetes, leveraging
+    GitOps workflows for production-grade model releases.
+  - Mentored 6 junior/mid-level engineers, fostering technical excellence and establishing
+    robust code quality and testing standards.
+  - Developed custom internal toolchains, optimizing CI pipeline execution times by
+    40% and enhancing overall compute efficiency.
 - name: Hooli Inc.
   position: Software Engineer
   url: https://hooli.example.com
   startDate: '2018-06-01'
   endDate: '2021-02-01'
-  summary: Backend engineer focused on building RESTful APIs, developer tooling, and
-    automated deployment integrations.
+  summary: Backend engineer focused on building scalable RESTful APIs, high-performance
+    developer tooling, and robust automated deployment integrations for distributed
+    systems.
   highlights:
-  - Developed robust REST APIs in Python/Django and TypeScript/Node.js
-  - Integrated third-party APIs and automated webhook processors for external developer
-    platforms
-  - Implemented a suite of unit and integration tests raising coverage from 60% to
-    92%
+  - Developed robust, scalable REST APIs in Python/Django and TypeScript/Node.js for
+    distributed applications.
+  - Integrated third-party APIs and automated webhook processors, enhancing system
+    resilience and external data traffic management.
+  - Implemented a comprehensive suite of unit and integration tests, increasing code
+    coverage from 60% to 92% and ensuring system reliability.
 education:
 - institution: University of Washington
   url: https://uw.edu
@@ -64,17 +67,21 @@ skills:
   - TypeScript
   - JavaScript
   - SQL
-  - HTML/CSS
-- name: Technologies & Frameworks
+- name: Cloud & Distributed Systems
   keywords:
   - Docker
   - Kubernetes
   - Git
   - GitOps
+  - Distributed Systems
+  - Cloud Platforms (AWS/GCP/Azure)
+  - Performance Optimization
+  - Request Routing & Load Balancing
+- name: Databases & Tools
+  keywords:
   - PostgreSQL
-  - Jinja2
-  - WeasyPrint
   - pytest
+  - Nix
 projects:
 - name: JobGitOps
   description: A GitOps-driven job application and tracking system utilizing GitHub
