@@ -1,0 +1,113 @@
+{
+  "basics": {
+    "name": "Martin Birkenbaum",
+    "label": "Senior Software Engineer",
+    "email": "martin.birkenbaum@initech.example.com",
+    "phone": "+12065550192",
+    "url": "https://github.com/mbirkenbaum",
+    "summary": "Senior Software Engineer with 8+ years of experience designing, building, and deploying highly performant, reliable, and scalable backend services and microservices. Expert in architectural design, automated testing, and fostering high-quality, maintainable code within cross-functional teams.",
+    "location": {
+      "city": "Seattle",
+      "region": "WA",
+      "countryCode": "US"
+    },
+    "profiles": [
+      {
+        "network": "GitHub",
+        "username": "mbirkenbaum",
+        "url": "https://github.com/mbirkenbaum"
+      }
+    ]
+  },
+  "work": [
+    {
+      "name": "Initech Corporation",
+      "position": "Senior Software Engineer",
+      "url": "https://initech.example.com",
+      "startDate": "2021-03-01",
+      "endDate": "2026-07-01",
+      "summary": "Led architecture and development of high-throughput microservices and GitOps-driven infrastructure pipelines.",
+      "highlights": [
+        "Designed and implemented highly performant and reliable Python-based event-driven microservices, processing 10M+ daily events with a focus on scalability and system integrity.",
+        "Standardized containerized deployments leveraging Docker, Kubernetes, and GitOps workflows to ensure consistent, reliable, and efficient delivery of software.",
+        "Mentored 6 junior/mid-level engineers, setting high technical standards, fostering clean code practices, and enhancing overall team capabilities.",
+        "Developed custom internal toolchains, enhancing developer efficiency and reducing CI pipeline execution times by 40%."
+      ]
+    },
+    {
+      "name": "Hooli Inc.",
+      "position": "Software Engineer",
+      "url": "https://hooli.example.com",
+      "startDate": "2018-06-01",
+      "endDate": "2021-02-01",
+      "summary": "Backend engineer focused on building RESTful APIs, developer tooling, and automated deployment integrations.",
+      "highlights": [
+        "Developed robust and scalable REST APIs in Python/Django and TypeScript/Node.js, ensuring high availability and secure data access.",
+        "Integrated third-party APIs and engineered automated webhook processors, facilitating seamless external developer interactions and data exchange.",
+        "Implemented a comprehensive suite of automated unit and integration tests, significantly raising coverage from 60% to 92% and improving overall system reliability."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Washington",
+      "url": "https://uw.edu",
+      "area": "Computer Science",
+      "studyType": "Bachelor of Science",
+      "startDate": "2014-09-01",
+      "endDate": "2018-06-01",
+      "score": "3.8",
+      "courses": [
+        "Data Structures & Algorithms",
+        "Distributed Systems",
+        "Software Engineering"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "name": "Languages",
+      "keywords": [
+        "Python",
+        "TypeScript",
+        "JavaScript",
+        "SQL",
+        "HTML/CSS"
+      ]
+    },
+    {
+      "name": "Technologies & Frameworks",
+      "keywords": [
+        "Docker",
+        "Kubernetes",
+        "Git",
+        "GitOps",
+        "PostgreSQL",
+        "System Design",
+        "API Design",
+        "Scalability",
+        "Performance Optimization",
+        "pytest",
+        "Mentorship"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "JobGitOps",
+      "description": "A GitOps-driven job application and tracking system utilizing GitHub Issues, Projects, and Actions.",
+      "highlights": [
+        "Developed python-jobspy scraper integration and two-pass LLM fit triage",
+        "Designed reproducible local environments via Nix and devenv"
+      ],
+      "keywords": [
+        "Python",
+        "Nix",
+        "GitHub Actions"
+      ],
+      "startDate": "2026-06-01",
+      "endDate": "2026-07-01",
+      "url": "https://github.com/mbirkenbaum/JobGitOps"
+    }
+  ]
+}
