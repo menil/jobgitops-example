@@ -4,9 +4,12 @@ basics:
   email: martin.birkenbaum@initech.example.com
   phone: '+12065550192'
   url: https://github.com/mbirkenbaum
-  summary: Senior Software Engineer with 8+ years of experience designing, building,
-    and deploying scalable backend services, microservices, and GitOps-driven automation
-    systems. Passionate about testing, developer toolchains, and clean code.
+  summary: Senior Software Engineer with 8+ years of experience in designing, building,
+    and deploying scalable Python-based backend services, microservices, and robust
+    GitOps-driven automation systems. Proven expertise in developing high-quality,
+    production-grade software, focusing on code quality, automated testing, and developer
+    toolchains to enhance system reliability and efficiency, including experience
+    relevant to data pipelines and ML infrastructure.
   location:
     city: Seattle
     region: WA
@@ -24,14 +27,16 @@ work:
   summary: Led architecture and development of high-throughput microservices and GitOps-driven
     infrastructure pipelines.
   highlights:
-  - Designed and implemented Python-based event-driven microservices processing 10M+
-    daily events
+  - Designed and implemented highly scalable Python-based event-driven microservices,
+    processing 10M+ daily events, applicable to high-throughput data pipelines and
+    backend ML infrastructure.
   - Standardized containerized deployments utilizing Docker, Kubernetes, and GitOps
-    workflows
-  - Mentored 6 junior/mid-level engineers, establishing local code styling and testing
-    standards
-  - Developed custom internal toolchains that reduced CI pipeline execution times
-    by 40%
+    workflows, ensuring reliable and efficient software delivery.
+  - Mentored 6 junior/mid-level engineers, establishing local code styling, quality,
+    and rigorous testing standards, contributing to robust codebases and excellent
+    team communication.
+  - Developed custom internal toolchains and automated verification mechanisms that
+    reduced CI pipeline execution times by 40% and enhanced overall code quality.
 - name: Hooli Inc.
   position: Software Engineer
   url: https://hooli.example.com
@@ -40,11 +45,13 @@ work:
   summary: Backend engineer focused on building RESTful APIs, developer tooling, and
     automated deployment integrations.
   highlights:
-  - Developed robust REST APIs in Python/Django and TypeScript/Node.js
-  - Integrated third-party APIs and automated webhook processors for external developer
-    platforms
-  - Implemented a suite of unit and integration tests raising coverage from 60% to
-    92%
+  - Developed robust and scalable REST APIs in Python/Django and TypeScript/Node.js,
+    forming critical backend components for full-stack applications.
+  - Integrated third-party APIs and designed automated webhook processors for external
+    developer platforms, demonstrating expertise in system integration and automation.
+  - Implemented a comprehensive suite of unit and integration tests, raising coverage
+    from 60% to 92%, and establishing high standards for code reliability and quality
+    assurance.
 education:
 - institution: University of Washington
   url: https://uw.edu
@@ -58,13 +65,6 @@ education:
   - Distributed Systems
   - Software Engineering
 skills:
-- name: Languages
-  keywords:
-  - Python
-  - TypeScript
-  - JavaScript
-  - SQL
-  - HTML/CSS
 - name: Technologies & Frameworks
   keywords:
   - Docker
@@ -72,9 +72,9 @@ skills:
   - Git
   - GitOps
   - PostgreSQL
+  - pytest (automated testing & evaluation)
   - Jinja2
   - WeasyPrint
-  - pytest
 projects:
 - name: JobGitOps
   description: A GitOps-driven job application and tracking system utilizing GitHub
