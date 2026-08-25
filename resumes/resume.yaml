@@ -5,8 +5,9 @@ basics:
   phone: '+12065550192'
   url: https://github.com/mbirkenbaum
   summary: Senior Software Engineer with 8+ years of experience designing, building,
-    and deploying scalable backend services, microservices, and GitOps-driven automation
-    systems. Passionate about testing, developer toolchains, and clean code.
+    and deploying scalable production data pipelines, microservices, and GitOps-driven
+    automation systems. Passionate about data integrity, schema design, developer
+    toolchains, and operational excellence.
   location:
     city: Seattle
     region: WA
@@ -24,14 +25,14 @@ work:
   summary: Led architecture and development of high-throughput microservices and GitOps-driven
     infrastructure pipelines.
   highlights:
-  - Designed and implemented Python-based event-driven microservices processing 10M+
-    daily events
+  - Designed and implemented Python-based production data pipelines processing 10M+
+    daily events, ensuring data integrity and scalability
   - Standardized containerized deployments utilizing Docker, Kubernetes, and GitOps
-    workflows
-  - Mentored 6 junior/mid-level engineers, establishing local code styling and testing
-    standards
+    workflows, enhancing system reliability and operational ownership
+  - Mentored 6 junior/mid-level engineers, establishing robust testing standards and
+    validation practices
   - Developed custom internal toolchains that reduced CI pipeline execution times
-    by 40%
+    by 40%, improving data pipeline efficiency and developer velocity
 - name: Hooli Inc.
   position: Software Engineer
   url: https://hooli.example.com
@@ -40,11 +41,12 @@ work:
   summary: Backend engineer focused on building RESTful APIs, developer tooling, and
     automated deployment integrations.
   highlights:
-  - Developed robust REST APIs in Python/Django and TypeScript/Node.js
-  - Integrated third-party APIs and automated webhook processors for external developer
-    platforms
+  - Developed robust REST APIs in Python/Django and TypeScript/Node.js, facilitating
+    data ingestion and integration points
+  - Integrated third-party APIs and automated webhook processors, establishing key
+    data integration pathways
   - Implemented a suite of unit and integration tests raising coverage from 60% to
-    92%
+    92%, embodying validation-first habits for critical systems
 education:
 - institution: University of Washington
   url: https://uw.edu
@@ -61,9 +63,9 @@ skills:
 - name: Languages
   keywords:
   - Python
+  - SQL
   - TypeScript
   - JavaScript
-  - SQL
   - HTML/CSS
 - name: Technologies & Frameworks
   keywords:
@@ -72,9 +74,11 @@ skills:
   - Git
   - GitOps
   - PostgreSQL
+  - Data Pipelines (ETL/ELT)
+  - Schema Design
+  - pytest
   - Jinja2
   - WeasyPrint
-  - pytest
 projects:
 - name: JobGitOps
   description: A GitOps-driven job application and tracking system utilizing GitHub
