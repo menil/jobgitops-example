@@ -5,8 +5,9 @@ basics:
   phone: '+12065550192'
   url: https://github.com/mbirkenbaum
   summary: Senior Software Engineer with 8+ years of experience designing, building,
-    and deploying scalable backend services, microservices, and GitOps-driven automation
-    systems. Passionate about testing, developer toolchains, and clean code.
+    and deploying scalable distributed systems, focusing on data storage layers, high-throughput
+    microservices, and performance optimization. Skilled in ensuring data consistency
+    at scale and driving technical excellence across engineering teams.
   location:
     city: Seattle
     region: WA
@@ -24,14 +25,15 @@ work:
   summary: Led architecture and development of high-throughput microservices and GitOps-driven
     infrastructure pipelines.
   highlights:
-  - Designed and implemented Python-based event-driven microservices processing 10M+
-    daily events
-  - Standardized containerized deployments utilizing Docker, Kubernetes, and GitOps
-    workflows
-  - Mentored 6 junior/mid-level engineers, establishing local code styling and testing
-    standards
-  - Developed custom internal toolchains that reduced CI pipeline execution times
-    by 40%
+  - Architected and optimized Python-based distributed data processing systems, handling
+    10M+ daily events while ensuring data consistency and performance at scale.
+  - Standardized containerized deployments utilizing Docker, Kubernetes, and GitOps,
+    foundational to building a scalable and resilient platform architecture.
+  - Mentored 6 junior/mid-level engineers, establishing robust code styling and rigorous
+    testing standards to elevate team's technical bar and ensure system reliability.
+  - Developed custom internal toolchains that optimized development workflows and
+    reduced CI pipeline execution times by 40%, demonstrating a focus on performance
+    engineering and cost-aware design.
 - name: Hooli Inc.
   position: Software Engineer
   url: https://hooli.example.com
@@ -40,11 +42,12 @@ work:
   summary: Backend engineer focused on building RESTful APIs, developer tooling, and
     automated deployment integrations.
   highlights:
-  - Developed robust REST APIs in Python/Django and TypeScript/Node.js
-  - Integrated third-party APIs and automated webhook processors for external developer
-    platforms
-  - Implemented a suite of unit and integration tests raising coverage from 60% to
-    92%
+  - Developed robust, scalable REST APIs in Python/Django and TypeScript/Node.js,
+    often involving complex data model interactions.
+  - Integrated third-party APIs and automated webhook processors, ensuring seamless
+    data flow and interaction with external systems.
+  - Implemented a comprehensive suite of unit and integration tests, raising coverage
+    from 60% to 92%, critical for ensuring correctness and data integrity.
 education:
 - institution: University of Washington
   url: https://uw.edu
@@ -72,6 +75,12 @@ skills:
   - Git
   - GitOps
   - PostgreSQL
+  - Distributed Systems
+  - Data Modeling
+  - Performance Tuning
+  - Caching
+  - Query Optimization
+  - Consistency Models
   - Jinja2
   - WeasyPrint
   - pytest
