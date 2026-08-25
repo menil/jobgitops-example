@@ -1,0 +1,133 @@
+name: Triage and Tailor Issue
+
+on:
+  issues:
+    types: [opened, labeled]
+  workflow_run:
+    workflows: [Daily Job Scraper]
+    types: [completed]
+
+concurrency:
+  group: triage
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: read
+  packages: read
+
+jobs:
+  check:
+    if: >
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+      || (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'triage-pending'))
+    runs-on: ubuntu-latest
+    outputs:
+      sentinel: ${{ steps.setup-check.outputs.sentinel }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            resumes/resume.yaml
+
+      # Spec §7.2: block triage until the placeholder resume is replaced.
+      # The sentinel check is parsing-free (grep), guarded on file existence
+      # so a missing resume.yaml counts as sentinel absent rather than erroring
+      # the step. It posts the setup-pending comment for issue events and marks
+      # the run so the coordinator step is skipped. A comment-post failure
+      # fails the step so the next event retries rather than stranding the
+      # issue without a notice. The issue is deliberately NOT closed here: it
+      # stays triage-pending as the visible setup reminder, and is drained
+      # (triaged and closed) by the next scrape workflow_run --all-pending
+      # backfill once a real resume is pushed to main.
+      - name: Block Triage While Setup is Pending
+        id: setup-check
+        run: |
+          if [ -f resumes/resume.yaml ] && grep -q '__JOBGITOPS_SETUP_PENDING__' resumes/resume.yaml; then
+            echo "sentinel=present" >> "$GITHUB_OUTPUT"
+            if [ "${{ github.event_name }}" = "issues" ]; then
+              curl -fsSL -X POST \
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments" \
+                -d '{"body":"Setup pending — update `resumes/resume.yaml` and push to `main`."}'
+            fi
+          else
+            echo "sentinel=absent" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  triage:
+    needs: check
+    if: needs.check.outputs.sentinel == 'absent'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/menil/jobgitops:latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Resume
+        id: verify
+        run: |
+          if [ -f resumes/resume.yaml ]; then
+            if python -m jobgitops.cli.validate_resume --check-canonical resumes/resume.yaml; then
+              echo "valid=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "Resume is not canonically formatted or valid. Skipping triage and keeping status pending."
+              echo "valid=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "Resume file not found. Skipping."
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set Badge (Running)
+        if: steps.verify.outputs.valid == 'true' && github.repository != vars.TEMPLATE_REPO
+        run: python .github/scripts/update_badge.py "Triage & Tailor" "running" "yellow" "triage-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Run Triage Coordinator
+        if: steps.verify.outputs.valid == 'true'
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            python -m jobgitops.cli.triage --all-pending
+          else
+            python -m jobgitops.cli.triage --event-path "$GITHUB_EVENT_PATH"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
+
+      - name: Update Badge (Failed)
+        if: failure() && steps.verify.outputs.valid != 'false' && github.repository != vars.TEMPLATE_REPO
+        run: python .github/scripts/update_badge.py "Triage & Tailor" "failing" "red" "triage-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Update Badge (Passed)
+        if: success() && steps.verify.outputs.valid == 'true' && github.repository != vars.TEMPLATE_REPO
+        run: python .github/scripts/update_badge.py "Triage & Tailor" "passing" "green" "triage-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Update Badge (Pending)
+        if: success() && steps.verify.outputs.valid == 'false' && github.repository != vars.TEMPLATE_REPO
+        run: python .github/scripts/update_badge.py "Triage & Tailor" "pending" "inactive" "triage-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}

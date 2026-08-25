@@ -1,0 +1,198 @@
+name: Daily Job Scraper
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight UTC
+  workflow_dispatch:
+    inputs:
+      work_preference:
+        description: 'Override work preference (remote, onsite, hybrid)'
+        required: false
+        default: 'hybrid'
+      job_type:
+        description: 'Override employment type (fulltime, contract, parttime, internship)'
+        required: false
+        default: 'fulltime'
+      hours_old:
+        description: 'Only search for jobs posted within the last N hours'
+        required: false
+        default: '24'
+      dry_run:
+        description: 'Run in dry-run mode (skip writing to remote GitHub APIs)'
+        type: boolean
+        required: false
+        default: false
+  # Bootstrap trigger: runs once when setup is completed (placeholder replaced).
+  # Chained to 'Auto-Format Resume' to ensure the resume is canonically formatted
+  # before scraping runs. Silent contract: dependent on the 'Auto-Format Resume'
+  # workflow keeping its exact name and completing successfully.
+  workflow_run:
+    workflows: [Auto-Format Resume]
+    types: [completed]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: write
+  packages: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_branch == github.event.repository.default_branch
+      )
+    outputs:
+      enabled: ${{ steps.check-enabled.outputs.enabled }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            resumes/resume.yaml
+            config/settings.yaml
+
+      - name: Check if Scraper is Enabled
+        id: check-enabled
+        run: |
+          # S4: a placeholder resume means setup is pending — never scrape on
+          # it. Applies to every event type (dispatch, schedule, workflow_run).
+          if [ -f resumes/resume.yaml ] && grep -q '__JOBGITOPS_SETUP_PENDING__' resumes/resume.yaml; then
+            echo "Setup pending — replace resumes/resume.yaml and push to main. Skipping scrape."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # S2: the bootstrap trigger (workflow_run of Auto-Format Resume) is one-time.
+          # Once a scrape succeeds, JOBGITOPS_INITIALIZED is set and later
+          # resume pushes no longer fire a scrape; self-healing if unset.
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            INITIALIZED=$(gh variable get JOBGITOPS_INITIALIZED 2>/dev/null || echo "false")
+            if [ "$INITIALIZED" = "true" ]; then
+              echo "Bootstrap scrape already completed; skipping."
+              echo "enabled=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          # Manual dispatch always runs once setup is done, overriding
+          # search.enabled for a one-off sweep.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # schedule / workflow_run: honor the user's search.enabled setting.
+          ENABLED=$(yq '.search.enabled' config/settings.yaml)
+          if [ "$ENABLED" = "false" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  scrape:
+    needs: check
+    if: needs.check.outputs.enabled == 'true'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/menil/jobgitops:latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Resume
+        id: verify
+        run: |
+          if [ -f resumes/resume.yaml ]; then
+            if python -m jobgitops.cli.validate_resume --check-canonical resumes/resume.yaml; then
+              echo "valid=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "Resume is not canonically formatted or valid. Skipping scrape and keeping status pending."
+              echo "valid=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "Resume file not found. Skipping."
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set Badge (Running)
+        if: steps.verify.outputs.valid == 'true' && github.repository != vars.TEMPLATE_REPO
+        run: python .github/scripts/update_badge.py "Daily Job Scraper" "running" "yellow" "scrape-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Run Job Scraper
+        if: steps.verify.outputs.valid == 'true'
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          INPUT_WORK_PREFERENCE: ${{ github.event.inputs.work_preference }}
+          INPUT_JOB_TYPE: ${{ github.event.inputs.job_type }}
+          INPUT_HOURS_OLD: ${{ github.event.inputs.hours_old }}
+          INPUT_DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          ARGS=()
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "${INPUT_WORK_PREFERENCE:-}" ]; then
+              ARGS+=("--work-preference" "$INPUT_WORK_PREFERENCE")
+            fi
+            if [ -n "${INPUT_JOB_TYPE:-}" ]; then
+              ARGS+=("--job-type" "$INPUT_JOB_TYPE")
+            fi
+            if [ -n "${INPUT_HOURS_OLD:-}" ]; then
+              ARGS+=("--hours-old" "$INPUT_HOURS_OLD")
+            fi
+            if [ "${INPUT_DRY_RUN:-}" = "true" ]; then
+              ARGS+=("--dry-run")
+            fi
+          fi
+          python -m jobgitops.cli.scrape "${ARGS[@]}"
+
+      # Mark the bootstrap as complete (one-time). PATCH 404s when the variable
+      # doesn't exist yet, so fall back to create. If both fail, the step fails
+      # loudly and the bootstrap re-fires on the next resume push (S3) — the
+      # scrape itself already succeeded, so jobs are never dropped.
+      - name: Set Bootstrap Initialized
+        if: steps.verify.outputs.valid == 'true'
+        run: |
+          if [ -n "$GH_TOKEN" ]; then
+            gh api --method PATCH "repos/${{ github.repository }}/actions/variables/JOBGITOPS_INITIALIZED" \
+              -f value=true \
+              || gh api --method POST "repos/${{ github.repository }}/actions/variables" \
+                   -f name=JOBGITOPS_INITIALIZED -f value=true \
+              || echo "::warning::Failed to update JOBGITOPS_INITIALIZED variable. Ensure your GH_PAT has the 'Variables' write permission, or set it manually in Settings -> Secrets and variables -> Actions -> Variables."
+          else
+            echo "::warning::GH_PAT is not set. GITHUB_TOKEN does not have permission to write repository variables. Please set JOBGITOPS_INITIALIZED to 'true' manually in your repository Settings -> Secrets and variables -> Actions -> Variables to prevent the bootstrap trigger from refiring on future resume pushes."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Update Badge (Failed)
+        if: failure() && steps.verify.outputs.valid != 'false' && github.repository != vars.TEMPLATE_REPO
+        run: python .github/scripts/update_badge.py "Daily Job Scraper" "failing" "red" "scrape-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Update Badge (Passed)
+        if: success() && steps.verify.outputs.valid == 'true' && github.repository != vars.TEMPLATE_REPO
+        run: python .github/scripts/update_badge.py "Daily Job Scraper" "passing" "green" "scrape-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Update Badge (Pending)
+        if: success() && steps.verify.outputs.valid == 'false' && github.repository != vars.TEMPLATE_REPO
+        run: python .github/scripts/update_badge.py "Daily Job Scraper" "pending" "inactive" "scrape-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}

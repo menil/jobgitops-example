@@ -1,0 +1,84 @@
+name: Auto-Format Resume
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'resumes/resume.yaml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/menil/jobgitops:latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check Setup Status
+        id: setup_check
+        run: |
+          if [ ! -f resumes/resume.yaml ] || grep -q "__JOBGITOPS_SETUP_PENDING__" resumes/resume.yaml; then
+            echo "pending=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pending=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set Badge (Running)
+        if: github.repository != vars.TEMPLATE_REPO && steps.setup_check.outputs.pending == 'false'
+        run: python .github/scripts/update_badge.py "Resume Format" "running" "yellow" "format-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Format Resume
+        if: steps.setup_check.outputs.pending == 'false'
+        run: |
+          python -c "
+          from jobgitops.loader import load_resume, render_resume_yaml
+          import pathlib
+          p = pathlib.Path('resumes/resume.yaml')
+          p.write_text(render_resume_yaml(load_resume(p)), encoding='utf-8')
+          "
+
+      - name: Commit and Push If Changed
+        if: steps.setup_check.outputs.pending == 'false'
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          if [ -n "$(git status --porcelain resumes/resume.yaml)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add resumes/resume.yaml
+            git commit -m "chore: format resume.yaml"
+            git pull --rebase origin ${{ github.ref_name }}
+            git push
+          else
+            echo "Resume is already canonically formatted."
+          fi
+
+      - name: Update Badge (Failed)
+        if: failure() && github.repository != vars.TEMPLATE_REPO && steps.setup_check.outputs.pending != 'true'
+        run: python .github/scripts/update_badge.py "Resume Format" "failed" "red" "format-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Update Badge (Result)
+        if: success() && github.repository != vars.TEMPLATE_REPO
+        run: |
+          if [ "${{ steps.setup_check.outputs.pending }}" = "true" ]; then
+            python .github/scripts/update_badge.py "Resume Format" "pending" "inactive" "format-status.json"
+          else
+            python .github/scripts/update_badge.py "Resume Format" "passed" "green" "format-status.json"
+          fi
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}

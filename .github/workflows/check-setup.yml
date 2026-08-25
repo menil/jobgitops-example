@@ -1,0 +1,92 @@
+name: Check Setup Status
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  check-setup:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/menil/jobgitops:latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Verify Setup and Gist Configuration
+        id: status
+        run: |
+          if [ "$GITHUB_REPOSITORY" = "$TEMPLATE_REPO" ]; then
+            echo "is_template=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "is_template=false" >> "$GITHUB_OUTPUT"
+
+          if [ ! -f resumes/resume.yaml ]; then
+            echo "setup_required=true" >> "$GITHUB_OUTPUT"
+            echo "Setup is required (resume.yaml missing)."
+          elif grep -q "__JOBGITOPS_SETUP_PENDING__" resumes/resume.yaml; then
+            echo "setup_required=true" >> "$GITHUB_OUTPUT"
+            echo "Setup is required (placeholder still present)."
+          else
+            if VALIDATE_OUTPUT=$(python -m jobgitops.cli.validate_resume resumes/resume.yaml 2>&1); then
+              echo "setup_required=false" >> "$GITHUB_OUTPUT"
+              echo "Setup is complete!"
+            else
+              # Escape newlines to make it a valid GitHub Actions single-line annotation
+              ANNOTATION=$(echo "$VALIDATE_OUTPUT" | tr '\n' ' ')
+              echo "::error file=resumes/resume.yaml::$ANNOTATION"
+              echo "setup_required=true" >> "$GITHUB_OUTPUT"
+              echo "Setup is required (resume format is invalid)."
+            fi
+          fi
+
+          if [ -n "$GH_PAT" ] && [ -n "$GIST_ID" ]; then
+            echo "has_gist=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_gist=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::GH_PAT or GIST_ID is not set — skipping Gist badge update."
+          fi
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GIST_ID: ${{ vars.GIST_ID }}
+          TEMPLATE_REPO: ${{ vars.TEMPLATE_REPO }}
+
+      # Setup is required: update all status badges to required/pending
+      - name: Reset Badges to Required/Pending
+        if: steps.status.outputs.is_template == 'false' && steps.status.outputs.has_gist == 'true' && steps.status.outputs.setup_required == 'true'
+        run: python .github/scripts/update_badge.py --reset
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      # Setup is complete: update setup badge to complete (green)
+      - name: Update Setup Badge (Complete)
+        if: steps.status.outputs.is_template == 'false' && steps.status.outputs.has_gist == 'true' && steps.status.outputs.setup_required == 'false'
+        run: python .github/scripts/update_badge.py "Setup" "complete" "green" "setup-status.json"
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      # Initialize the Projects V2 board columns immediately upon setup push.
+      # This ensures the user sees the canonical columns immediately without
+      # waiting for the 30-minute status sync cron. Pruning drops GitHub's
+      # default "Done" option, which permanently disarms the built-in
+      # "item closed -> Done" automation before any issue can be closed.
+      - name: Initialize Project Board Columns
+        if: steps.status.outputs.is_template == 'false' && steps.status.outputs.has_gist == 'true'
+        continue-on-error: true
+        run: |
+          python -m jobgitops.cli.project_sync field-options
+          python -m jobgitops.cli.project_sync field-options --prune
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
