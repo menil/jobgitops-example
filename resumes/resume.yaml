@@ -4,9 +4,11 @@ basics:
   email: martin.birkenbaum@initech.example.com
   phone: '+12065550192'
   url: https://github.com/mbirkenbaum
-  summary: Senior Software Engineer with 8+ years of experience designing, building,
-    and deploying scalable backend services, microservices, and GitOps-driven automation
-    systems. Passionate about testing, developer toolchains, and clean code.
+  summary: Senior Software Engineer with 8+ years of experience specializing in platform
+    and infrastructure development. Proven expertise in designing, building, and deploying
+    scalable backend services, cloud-native microservices, and GitOps-driven automation
+    systems within AWS environments. Passionate about enhancing developer productivity,
+    CI/CD, observability, and clean code practices.
   location:
     city: Seattle
     region: WA
@@ -25,13 +27,13 @@ work:
     infrastructure pipelines.
   highlights:
   - Designed and implemented Python-based event-driven microservices processing 10M+
-    daily events
+    daily events, contributing to scalable backend systems
   - Standardized containerized deployments utilizing Docker, Kubernetes, and GitOps
-    workflows
+    workflows, enhancing CI/CD and infrastructure-as-code practices
   - Mentored 6 junior/mid-level engineers, establishing local code styling and testing
-    standards
+    standards, and fostering operational best practices
   - Developed custom internal toolchains that reduced CI pipeline execution times
-    by 40%
+    by 40%, significantly improving developer productivity and deployment efficiency
 - name: Hooli Inc.
   position: Software Engineer
   url: https://hooli.example.com
@@ -40,11 +42,12 @@ work:
   summary: Backend engineer focused on building RESTful APIs, developer tooling, and
     automated deployment integrations.
   highlights:
-  - Developed robust REST APIs in Python/Django and TypeScript/Node.js
+  - Developed robust REST APIs in Python/Django and TypeScript/Node.js, contributing
+    to scalable backend and distributed systems
   - Integrated third-party APIs and automated webhook processors for external developer
-    platforms
+    platforms, enhancing system integrations and reliability
   - Implemented a suite of unit and integration tests raising coverage from 60% to
-    92%
+    92%, improving code quality and system reliability
 education:
 - institution: University of Washington
   url: https://uw.edu
@@ -67,13 +70,18 @@ skills:
   - HTML/CSS
 - name: Technologies & Frameworks
   keywords:
+  - AWS
   - Docker
   - Kubernetes
   - Git
   - GitOps
+  - CI/CD
+  - Infrastructure as Code
+  - Observability
+  - Monitoring
+  - Distributed Systems
   - PostgreSQL
-  - Jinja2
-  - WeasyPrint
+  - Backend Services
   - pytest
 projects:
 - name: JobGitOps
